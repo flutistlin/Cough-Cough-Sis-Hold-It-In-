@@ -6,9 +6,9 @@
 <meta name="description" content="喉嚨永遠很癢的愛樂人，騎機車跑遍台北 9 大音樂場館——安靜的時候，千萬別咳！富瑜文教基金會出品。">
 <meta property="og:title" content="酷酷嫂，忍住~! Cough-Cough Sis, Hold It In!">
 <meta property="og:description" content="騎機車跑遍台北 9 大音樂場館，在音樂會裡忍住別咳！手機瀏覽器免費玩。">
-<meta property="og:image" content="assets/og.jpg">
+<meta property="og:image" content="og.jpg">
 <meta property="og:type" content="website">
-<link rel="icon" href="assets/icon.png">
+<link rel="icon" href="icon.png">
 <title>酷酷嫂，忍住~!</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -461,14 +461,14 @@ const MM=new Float32Array(16);
 function modelMat(cx,cy,cz,th,s,lcx,lcz){const c=Math.cos(th),sn=Math.sin(th);MM.set([c*s,0,-sn*s,0,0,s,0,0,sn*s,0,c*s,0,cx-c*s*lcx-sn*s*lcz,cy,cz+sn*s*lcx-c*s*lcz,1]);return MM;}
 function loadTex(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);
  const near=f.startsWith('colormap');gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,near?gl.NEAREST:gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,near?gl.NEAREST:gl.LINEAR);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);if(!near)gl.generateMipmap(gl.TEXTURE_2D);res(t);};im.onerror=()=>rej(f);im.src='assets/'+f;});}
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);if(!near)gl.generateMipmap(gl.TEXTURE_2D);res(t);};im.onerror=()=>rej(f);im.src=''+f;});}
 const PROPS=[];
 function buildProps(){const add=(m,x,z,th,s)=>{if(!blocked(x,z,2))PROPS.push({m,x,z,th,s});};
  for(const r of HR)for(let x=WORLD.x0+80;x<WORLD.x1-40;x+=170){if(VR.some(v=>Math.abs(x-v.x)<v.w/2+40))continue;add('light-curved',x,r.y-r.w/2-7,Math.PI,48);add('light-curved',x+85,r.y+r.w/2+7,0,48);}
  for(const r of VR)for(let z=WORLD.y0+80;z<WORLD.y1-40;z+=170){if(HR.some(h=>Math.abs(z-h.y)<h.w/2+40)||(z>360&&z<740))continue;add('light-curved',r.x-r.w/2-7,z,-Math.PI/2,48);add('light-curved',r.x+r.w/2+7,z+85,Math.PI/2,48);}
  for(const h of HR)for(const v of VR){add('traffic-light',v.x+v.w/2+8,h.y+h.w/2+8,Math.PI*.75,56);add('traffic-light',v.x-v.w/2-8,h.y-h.w/2-8,-Math.PI*.25,56);}}
 async function loadModels(){try{
- const [js,bin]=await Promise.all([fetch('assets/models.json').then(r=>r.json()),fetch('assets/models.b64.txt').then(r=>r.text()).then(t=>{const raw=atob(t.trim()),u=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)u[i]=raw.charCodeAt(i);return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();})]);
+ const [js,bin]=await Promise.all([fetch('models.json').then(r=>r.json()),fetch('models.b64.txt').then(r=>r.text()).then(t=>{const raw=atob(t.trim()),u=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)u[i]=raw.charCodeAt(i);return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();})]);
  KM.meta=js;KM.vbo=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,KM.vbo);gl.bufferData(gl.ARRAY_BUFFER,bin,gl.STATIC_DRAW);
  KM.ibo=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,KM.ibo);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,bin,gl.STATIC_DRAW);
  [KM.tc,KM.tr]=await Promise.all(['colormap_c.png','colormap_r.png'].map(loadTex));KM.bt=await Promise.all(js.blk.tex.map(n=>loadTex('blk_'+n+'.png')));KM.tix={};js.blk.tex.forEach((n,i)=>KM.tix[n]=i);
@@ -825,7 +825,7 @@ function readStory(v){let pg=0;const P='color:#2b2420;font-size:15px;line-height
  show();}
 function showGate(v){mode='overlay';joy={on:false};const now=gameMin,T=SHOW.ticket;
  const steps=`<div style="font-size:14px;margin:8px 0">${[['📜 讀過巖流島決鬥故事',SHOW.read],['🎫 買票（200 點）',T!=null],['⏰ 準時到場（開演前 30 分鐘開放入場）',0]].map(([n,ok])=>`<div style="color:${ok?'#55efc4':'#ddd'}">${ok?'✅':'⬜'} ${n}</div>`).join('')}</div>`;
- const head=`<div style="text-align:center"><img src="assets/shuiyuan_poster.jpg" style="width:150px;border-radius:6px"></div><h2 style="text-align:center">${v.name}</h2><p style="text-align:center;color:#aaa;font-size:13px">${v.area}</p><p style="text-align:center;font-size:14px">原創音樂舞劇《樂舞—貓・武藏・小次郎》<br><span style="color:#aaa;font-size:12px">演出：富瑜室內樂團・白蹈場舞團｜主辦：富瑜文教基金會<br>實際演出：2027/6/5（六）14:30・19:30 台北市水源劇場</span></p>`;
+ const head=`<div style="text-align:center"><img src="shuiyuan_poster.jpg" style="width:150px;border-radius:6px"></div><h2 style="text-align:center">${v.name}</h2><p style="text-align:center;color:#aaa;font-size:13px">${v.area}</p><p style="text-align:center;font-size:14px">原創音樂舞劇《樂舞—貓・武藏・小次郎》<br><span style="color:#aaa;font-size:12px">演出：富瑜室內樂團・白蹈場舞團｜主辦：富瑜文教基金會<br>實際演出：2027/6/5（六）14:30・19:30 台北市水源劇場</span></p>`;
  if(!SHOW.read){showOv(head+steps+`<button id="rd">📜 先讀巖流島決鬥故事</button><button id="back" style="background:#444">晚點再來</button>`);$('rd').onclick=()=>readStory(v);$('back').onclick=()=>{hideOv();mode='map';};return;}
  if(T==null){showOv(head+steps+`<p style="text-align:center">現在時間 <b>${clockStr()}</b>，你有 🎵 ${money} 點</p>${money>=200?SESS.map((m,i)=>`<button data-s="${i}" style="background:#8b1e1e">🎫 ${fmtT(m)} 場（200 點）</button>`).join(''):'<p style="text-align:center;color:#888">票要 200 點，去送珍奶外送賺點數吧！</p>'}<button id="back" style="background:#444">晚點再來</button>`);
   document.querySelectorAll('#ov button[data-s]').forEach(b=>b.onclick=()=>{money-=200;const day=Math.floor(gameMin/1440);let a=day*1440+SESS[+b.dataset.s];if(gameMin>a-30)a+=1440;SHOW.ticket=a;SHOW.late=0;SHOW.rem=0;SFX.stamp();hideOv();mode='map';say(`買好 ${fmtT(a)} 場的票了！開演前 30 分鐘開放入場，記得準時回來喔 ⏰`);});
@@ -888,7 +888,7 @@ const FYPROG={series:'2026 富瑜音樂沙龍《向大師致敬系列》',title:
  ['鋼琴 / 王文娟','fy_wwj','富瑜室內樂團鋼琴家。於國立台北藝術大學取得音樂藝術博士學位。師事魏樂富、陳泰成、蔡佳憓、Mikhail Kollontay、Marina Drozdowa、吳瑩珊等教授。曾擔任北藝大 2009-2010 駐校藝術家、入選 2009 兩廳院林肯中心室內樂工作坊、獲 2007 國臺交鋼琴協奏曲大賽之「最佳國人作品演奏獎」、2004 建華愛樂古典菁英獎「建華獎」。在 2001 年日本琉球 Sugar Hall 新人甄選大賽中入選，受到當地沖繩日報評為『自由自在、感動人心的演出』。2000 年獲邀於俄國 Tambov 拉赫曼尼諾夫青年鋼琴家大賽系列音樂會演出。2015-17 獲邀為「台北舞蹈空間 X 譚盾計畫—迴 HUI」現場演奏鋼琴家。2017 年十月獲台中歌劇院邀請合作演出歌劇院巨人系列—向井山朋子《繁複第三號：給四部鋼琴的頑固低音之歌》。曾為國立實驗合唱團專任鋼琴。目前任教於私立實踐大學音樂系、光仁高中等。']]};
 function fuyuPages(){const P='color:#2b2420;font-size:14px;line-height:1.6;margin:4px 0 10px';
  return [`<div style="text-align:center;color:#6c5b7b;font-size:13px">${FYPROG.series}</div><h3 style="text-align:center;margin:6px 0">🦋 百年一蝶　2種情深</h3><div style="text-align:center;font-size:13px;color:#8a5a44">${FYPROG.sub}</div><div style="text-align:center;font-size:14px;line-height:1.9;margin:10px 0;color:#2b2420">${FYPROG.poem.join('<br>')}</div><h3>🎼 ${FYPROG.title}</h3>${FYPROG.pieces.map(([t,d])=>`<p style="${P}"><b>${t}</b><br><span style="color:#7a6a5a">${d}</span></p>`).join('')}<p style="${P}">演出：王建堂／小提琴　謝介豪／單簧管　王文娟／鋼琴</p>`,
-  ...FYPROG.people.map(([n,img,b])=>`<h3>${n}</h3><div style="text-align:center"><img src="assets/${img}.jpg" style="width:110px;height:202px;object-fit:cover;border-radius:6px"></div><p style="${P}">${b}</p>`),
+  ...FYPROG.people.map(([n,img,b])=>`<h3>${n}</h3><div style="text-align:center"><img src="${img}.jpg" style="width:110px;height:202px;object-fit:cover;border-radius:6px"></div><p style="${P}">${b}</p>`),
   `<h3>📍 富瑜音樂沙龍</h3><p style="${P}">台北市中正區辛亥路一段12-2號一樓<br>潤泰新雙子星大樓（捷運台電大樓站出口1，耕莘文教院旁，小巷步入至花圃即抵達）<br>主辦：富瑜文教基金會、富瑜室內樂團</p><h3>🤫 樂迷小提醒</h3>${PTIPS.strict.map(x=>`<p style="color:#2b2420;font-size:15px">${x}</p>`).join('')}<p style="color:#a0522d;font-weight:700">🎴 富瑜熟客集點卡：聽滿 3 次，之後每場分數 ×2！</p><p style="color:#2b2420;font-size:14px">歡迎加入富瑜的 FB 官方帳號，裡面將有更豐富的演出內容！</p><div style="text-align:center"><button id="orig" style="width:auto;padding:0 16px;height:38px;font-size:14px;background:#8e6e53">🖼️ 看原版海報</button></div>`];}
 function programPages(v){if(v.id==='fuyu')return fuyuPages();const n=PNOTES[v.piece]||[v.desc||'',`今晚在${v.name}演出：${v.piece}。`,'仔細聽每一段的變化，享受現場的聲音。'];
  return [`<h3>🎼 ${v.piece}</h3>${n.map(x=>`<p style="color:#2b2420;font-size:15px">・${x}</p>`).join('')}`,
@@ -896,7 +896,7 @@ function programPages(v){if(v.id==='fuyu')return fuyuPages();const n=PNOTES[v.pi
 function openProgram(v){let pg=0;const pages=programPages(v);
  const show=()=>{showOv(`<div style="background:#f6efe2;color:#2b2420;border-radius:10px;padding:14px 16px;min-height:300px;font-family:serif"><div style="text-align:center;font-size:12px;color:#8a7a68">${v.name}・節目單　${pg+1}/${pages.length}</div>${pages[pg]}</div>
   <button id="nx">${pg<pages.length-1?'翻下一頁 ▶':'📖 讀完了，回座位'}</button>`);
-  if($('orig'))$('orig').onclick=()=>{showOv(`<div style="text-align:center"><a href="assets/fuyu_program.jpg" target="_blank"><img src="assets/fuyu_program.jpg" style="width:100%;border-radius:6px"></a><p style="font-size:12px;color:#aaa">點圖片可放大</p></div><button id="bk">◀ 回節目單</button>`);$('bk').onclick=show;};$('nx').onclick=()=>{SFX.page&&SFX.page();if(pg<pages.length-1){pg++;show();}else{if(!v._read){v._read=1;GATE.mn+=10;GATE.notes.push('開演前讀節目單');}v._keep=1;showVenueIntro(v);}};};show();}
+  if($('orig'))$('orig').onclick=()=>{showOv(`<div style="text-align:center"><a href="fuyu_program.jpg" target="_blank"><img src="fuyu_program.jpg" style="width:100%;border-radius:6px"></a><p style="font-size:12px;color:#aaa">點圖片可放大</p></div><button id="bk">◀ 回節目單</button>`);$('bk').onclick=show;};$('nx').onclick=()=>{SFX.page&&SFX.page();if(pg<pages.length-1){pg++;show();}else{if(!v._read){v._read=1;GATE.mn+=10;GATE.notes.push('開演前讀節目單');}v._keep=1;showVenueIntro(v);}};};show();}
 const ATT={};
 function showVenueIntro(v){mode='overlay';joy={on:false};if(v.programs&&!v._keep){v._prog=0;v._read=0;Object.assign(v,pick(v.programs));v.total=v.segs.reduce((a,x)=>a+x[1],0);}v._keep=0;
  const again=(visited.has(v.id)?'<p style="color:#2ecc71">✅ 你已經集過這裡的章了，可以再聽一次刷星。</p>':'')+`<p style="text-align:center;color:#ffd700;font-size:15px">最佳紀錄 ${starStr(STARS[v.id]||0)}</p><p style="font-size:12px;color:#aaa;text-align:center">★ 聽完整場　★ 一拳都沒挨　★ 禮儀分 ≥ ${STAR3}<br>🎩 禮儀分：做出好樂迷選擇（綠色按鈕）、挑強音咳嗽、開演前關靜音、幫長輩⋯⋯連續做對還有加乘！</p>`;
@@ -1048,7 +1048,7 @@ function showCert(back){mode='overlay';const nm=TOT.name||'';
    showOv(`<img src="${url}" style="width:100%;border-radius:8px"><p style="text-align:center;font-size:12px;color:#aaa">也可以長按圖片儲存</p><button id="sv" style="display:none">📤 分享／存到手機</button><p id="svm" style="text-align:center;font-size:13px;color:#aaa"></p><button id="bk" style="background:#444">◀ 返回</button>`);
    $('bk').onclick=back;let DL=null;(async()=>{try{DL=window.claude&&window.claude.use?await window.claude.use('downloads'):null;}catch(e){DL=null;}if(DL&&$('sv'))$('sv').style.display='';else if(!window.claude&&$('sv')){$('sv').style.display='';}})();
    $('sv').onclick=async()=>{if(!DL){try{const blob=await new Promise(r=>cv3.toBlob(r,'image/png'));const file=new File([blob],'好樂迷證書.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'我的好樂迷證書',text:'我在《酷酷嫂，忍住~!》拿到好樂迷證書！'});$('svm').textContent='✅ 已分享';}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='好樂迷證書.png';document.body.appendChild(a);a.click();a.remove();$('svm').textContent='✅ 已下載';}}catch(e){$('svm').textContent='請長按圖片儲存';}return;}try{const blob=await new Promise(r=>cv3.toBlob(r,'image/png'));await DL.save({filename:'好樂迷證書.png',data:blob});$('svm').textContent='✅ 已存好';}catch(e){$('svm').textContent=e&&e.code==='declined'?'已取消':'這裡沒辦法存檔，請長按圖片儲存';}};};
-  logo.onload=fin;logo.onerror=fin;logo.src='assets/fuyu_logo.png';setTimeout(fin,1500);};}
+  logo.onload=fin;logo.onerror=fin;logo.src='fuyu_logo.png';setTimeout(fin,1500);};}
 
 /* ===== 場館專屬玩法 ===== */
 function glowTap(){const c=C,bl=GEN.pop.ms/1000,ph=(c.t%bl)/bl,dist=Math.min(ph,1-ph)*bl,p=playerPos(),d=dynAt(c.t);
