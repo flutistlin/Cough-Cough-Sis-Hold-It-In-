@@ -521,12 +521,12 @@ function updateTimeWeather(dt){if(mode!=='overlay')gameMin+=dt*2;const h=Math.fl
  if(WEA.rain>.6){WEA.flashT-=dt;if(WEA.flashT<=0){WEA.flashT=6+Math.random()*10;WEA.flash=1;setTimeout(()=>SFX.thunder&&SFX.thunder(),400+Math.random()*900);}}
  WEA.flash=Math.max(0,WEA.flash-dt*3);updateSky();}
 /* ---- radio ---- */
-const DJL=['城市導覽時間：辛亥路一段的富瑜音樂沙龍，是一間沙龍式的小型音樂空間，觀眾就坐在演出者面前，像在客廳裡聽音樂。','導覽小單元：在富瑜這種近距離的空間，連單簧管的換氣、琴弓的摩擦聲都聽得一清二楚，這正是沙龍音樂會的魅力。','今晚國家音樂廳有馬勒，記得戴口罩喔！','路況報導：基隆路車多，騎士請注意小黃。','溫馨提醒：慢板的時候不要咳嗽，會被揍。','聽眾點播：長鼻鼻想點一首單簧管獨奏。','垃圾車快來了，請各位聽眾準備好你的垃圾。','小巨蛋的朋友，燈牌請勿舉過頭喔。','北藝大劇院座位很窄，進場前記得先上廁所。','午後雷陣雨機率七成，出門記得帶傘。'];
+const DJL=['城市導覽時間：辛亥路一段的富瑜音樂沙龍，是一間沙龍式的小型音樂空間，觀眾就坐在演出者面前，像在客廳裡聽音樂。','導覽小單元：在富瑜這種近距離的空間，連單簧管的換氣、琴弓的摩擦聲都聽得一清二楚，這正是沙龍音樂會的魅力。','今晚國家音樂廳有馬勒，記得戴口罩喔！','路況報導：基隆路車多，騎士請注意小黃。','溫馨提醒：慢板的時候不要咳嗽，全場都會回頭看你。','聽眾點播：長鼻鼻想點一首單簧管獨奏。','垃圾車快來了，請各位聽眾準備好你的垃圾。','小巨蛋的朋友，燈牌請勿舉過頭喔。','北藝大劇院座位很窄，進場前記得先上廁所。','午後雷陣雨機率七成，出門記得帶傘。'];
 const DJ_AI=['本台音樂由 AI 即時作曲，每一首都只會播一次。','AI 主持人提醒您：咳嗽請挑 ff。','這首歌是 AI 聽了一萬場音樂會後寫的，聽說沒人咳嗽。'];
 const DJ_MOD=['您正在收聽現代樂音樂台，接下來是一段沒有旋律的旋律。','現代樂小知識：凱吉的《4分33秒》，整首都是安靜，請勿咳嗽。','這段音樂是由兩組節奏慢慢錯開，請耐心聆聽。'];
 let rad=null;
 function radioToggle(){initAudio();RADIO=(RADIO+1)%3;$('radio').textContent=['📻 關','📻 現代樂台','📻 AI 音樂台'][RADIO];
- if(RADIO){djT=2;say(RADIO===1?'📻 切到「現代樂音樂台」～':'📻 切到「AI 音樂電台」～',2.5);}}
+ if(RADIO){djT=2;say(RADIO===1?'📻 切到「現代樂音樂台」～':'📻 切到「AI 音樂電台」～',2.5);}else{DJ=null;rad=null;try{speechSynthesis.cancel()}catch(e){}say('📻 電台關掉了',2);}}
 function radioTick(){if(!AC||!RADIO||mode!=='map'||muted)return;rad=rad||{b:0,mi:4};const now=AC.currentTime+.02,b=rad.b++;
  if(RADIO===1){const S=[60,62,64,66,68,70,72,74,76],A=[0,2,4,7,4,2,5,8,6,3,1,7],B=[0,2,4,7,4,2,5,8,6,3,1];
   tone(m2f(S[A[b%A.length]]+12),.35,'sine',.05,master,now,.004);tone(m2f(S[B[Math.floor(b*1.09)%B.length]]),.35,'triangle',.035,master,now+.07,.004);
@@ -593,8 +593,7 @@ function updateChase(dt){const want=mode==='map'&&stars>=2?Math.min(4,stars-1):0
  for(let i=CHASE.length-1;i>=0;i--){const c=CHASE[i],dx=P.x-c.x,dz=P.y-c.z,d=Math.hypot(dx,dz);
   if(d>820){CHASE.splice(i,1);if(stars>0){stars--;starT=0;}MF.push({t:'甩掉糾察隊了！惡名 -1',x:P.x,y:P.y,life:1.8});continue;}
   if(c.stun>0){c.stun-=dt;continue;}const sp=185+stars*14;c.x+=dx/d*sp*dt;c.z+=dz/d*sp*dt;c.a=Math.atan2(dz,dx);c.ph+=dt*12;
-  if(d<14){c.stun=2.2;hp-=6+stars*2;mapShake=.4;SFX.punch();starT=0;MF.push({t:pick(['糾察隊：「你就是在慢板咳嗽的那個！」','糾察隊：「去聽 4 分 33 秒反省！」','糾察隊：「手機給我關靜音！」']),x:P.x,y:P.y,life:1.8});
-   if(hp<=0){hp=0;wasted('你被樂迷糾察隊圍住唸了一整晚，體力耗盡。');return;}}}
+  if(d<14){c.stun=2.6;P.vx*=.2;P.vy*=.2;SFX.shh();starT=0;MF.push({t:pick(['糾察隊：「你就是在慢板咳嗽的那個！」','糾察隊：「下次去聽 4 分 33 秒練習安靜！」','糾察隊：「手機記得關靜音喔！」','糾察隊：「咳嗽要用手帕摀住啦～」']),x:P.x,y:P.y,life:2});}}
  if(CHASE.length&&CHASE.some(c=>Math.hypot(P.x-c.x,P.y-c.z)<400))starT=Math.min(starT,5);}
 /* ---- score fragments ---- */
 const FRAG=[];(function(){let sd=777;const r=()=>{sd=(sd*16807)%2147483647;return(sd-1)/2147483646;};
@@ -799,7 +798,7 @@ function nextTarget(){if(INV.slip){const t=shoeTarget();if(t)return t;}{const f=
 
 /* ================= CONCERT ================= */
 const DCOL=['#1f3a6b','#2f6db5','#e67e22','#e74c3c'],DL=['pp 極弱','p 弱','f 強','ff 極強'];
-const RULE={strict:'規則：超級安靜！只有 f／ff（橘紅色）段落咳嗽才安全',medium:'規則：弱音時咳嗽會被噓，噓滿 3 次被揍；強音時可以歡呼',loose:'規則：盡情嗨！只有 pp 抒情段落要安靜'};
+const RULE={strict:'規則：超級安靜！只有 f／ff（橘紅色）段落咳嗽才安全',medium:'規則：弱音時咳嗽會被噓，噓滿 3 次會被提醒，再犯就被請出場；強音時可以歡呼',loose:'規則：盡情嗨！只有 pp 抒情段落要安靜'};
 const PQ={dance:['決鬥前的寂靜被你毀了！','武藏都還沒出刀，你先出聲？！','這是巖流島，不是夜市！','小次郎都被你嚇到了'],classical:['這是慢板欸！！','馬勒在哭你知道嗎','咳回家咳！','我買的是 3800 的票！','你喉嚨比定音鼓還大聲'],
  chinese:['少年仔，安靜一點！','春江花月夜被你咳成颱風夜','阿嬤我出手了！','二胡都停了你還在咳'],
  silent:['這首曲子就是要聽寂靜！','你毀了凱吉！','33 秒都忍不住？','你的咳嗽成為作品的一部分了——付錢！'],
@@ -901,7 +900,7 @@ function openProgram(v){let pg=0;const pages=programPages(v);
   if($('orig'))$('orig').onclick=()=>{showOv(`<div style="text-align:center"><a href="fuyu_program.jpg" target="_blank"><img src="fuyu_program.jpg" style="width:100%;border-radius:6px"></a><p style="font-size:12px;color:#aaa">點圖片可放大</p></div><button id="bk">◀ 回節目單</button>`);$('bk').onclick=show;};$('nx').onclick=()=>{SFX.page&&SFX.page();if(pg<pages.length-1){pg++;show();}else{if(!v._read){v._read=1;GATE.mn+=10;GATE.notes.push('開演前讀節目單');}v._keep=1;showVenueIntro(v);}};};show();}
 const ATT={};
 function showVenueIntro(v){mode='overlay';joy={on:false};if(v.programs&&!v._keep){v._prog=0;v._read=0;Object.assign(v,pick(v.programs));v.total=v.segs.reduce((a,x)=>a+x[1],0);}v._keep=0;
- const again=(visited.has(v.id)?'<p style="color:#2ecc71">✅ 你已經集過這裡的章了，可以再聽一次刷星。</p>':'')+`<p style="text-align:center;color:#ffd700;font-size:15px">最佳紀錄 ${starStr(STARS[v.id]||0)}</p><p style="font-size:12px;color:#aaa;text-align:center">★ 聽完整場　★ 一拳都沒挨　★ 禮儀分 ≥ ${STAR3}<br>🎩 禮儀分：做出好樂迷選擇（綠色按鈕）、挑強音咳嗽、開演前關靜音、幫長輩⋯⋯連續做對還有加乘！</p>`;
+ const again=(visited.has(v.id)?'<p style="color:#2ecc71">✅ 你已經集過這裡的章了，可以再聽一次刷星。</p>':'')+`<p style="text-align:center;color:#ffd700;font-size:15px">最佳紀錄 ${starStr(STARS[v.id]||0)}</p><p style="font-size:12px;color:#aaa;text-align:center">★ 聽完整場　★ 沒被提醒　★ 禮儀分 ≥ ${STAR3}<br>🎩 禮儀分：做出好樂迷選擇（綠色按鈕）、挑強音咳嗽、開演前關靜音、幫長輩⋯⋯連續做對還有加乘！</p>`;
  showOv(`<div class="big">${v.icon}</div><h2 style="text-align:center">${v.name}</h2><p style="text-align:center;color:#aaa">${v.area}</p>
  ${FEAT.has(v.id)?'<p style="text-align:center;color:#ffd700;font-weight:700">⭐ 推薦場館：這場分數 ×2</p>':''}<p>🎼 今日節目：<b>${v.piece}</b></p>${v.id==='fuyu'?'<p style="font-size:13px;color:#d1c4e9">紀念陳鋼與周藍萍百年・公益音樂饗宴<br>曲目：梁祝小提琴協奏曲（陳鋼、何占豪 曲）・梁山伯與祝英台黃梅選粹三重奏（周藍萍 編曲、李翰威 新編）<br>演出：小提琴 王建堂・單簧管 謝介豪・鋼琴 王文娟</p>':''}<p>${v.desc}</p>${v.id==='fuyu'?'<div style="background:rgba(108,91,123,.25);border-left:3px solid #b39ddb;padding:6px 10px;margin:6px 0;font-size:14px">🎹 <b>關於富瑜</b>：一間沙龍式的小型音樂空間。沒有舞台高台、沒有遙遠的包廂——椅子就排在演出者面前，近到聽得見琴弓擦過琴弦、單簧管手換氣的聲音。這裡聽的不只是音樂，還有音樂是怎麼「被做出來」的。</div>':''}<p style="color:#ffd700">${RULE[v.strict]}</p>
  ${OUTV.has(v.id)?'<p style="color:#fab1a0">⚠️ 戶外音樂節亂象：大聲講電話、低頭打卡、野餐墊卡位與佔位糾紛、喝太多、醉漢口角、當眾熱吻、非吸菸區抽菸⋯⋯散場還要記得帶走垃圾！</p>':''}${isPOP(v)?'<p style="color:#fab1a0">⚠️ 演唱會惡習大考驗：舉手機錄影、巨型燈牌、亂站、嘶吼跟唱、聊天、亂喊、'+(v.id==='tmc'?'搖滾區推擠、':'')+'揮螢光棒、偷吃、閃光燈⋯⋯選錯就被粉絲修理！</p>':''}${isEV(v)?(v.id==='zsh'?'<p style="color:#fab1a0">⚠️ 中正廳特別狀況：暗場滑手機、隔壁阿姨搭話、翻節目冊、保溫瓶掉地上、前傾擋人、座位糾紛⋯⋯再加上最後一音搶鼓掌！</p>':'<p style="color:#fab1a0">⚠️ 突發狀況場館：手機響、打瞌睡、遲到、偷拍、紅白塑膠袋、急尿、最後一音搶鼓掌⋯⋯都可能發生！</p>'):''}
@@ -944,12 +943,21 @@ function cheer(){if(mode!=='concert'||C.ccd>0||C.away>0||C.cu)return;C.ccd=.4;if
  if(d>=2&&s!=='strict'){const g=s==='loose'?(d===3?30:18):15;C.score+=g;C.cheers++;C.jump=.4;SFX.cheer();cft(pick(['喔耶～！','安可！','Bravo!','嗚呼～！','好聽！']),p.x,p.y-80,'#ffeaa7',20);cft('+'+g,p.x+60,p.y-50,'#ffd700',16);return;}
  SFX.cheer();cft(s==='strict'&&d>=2?'Bravo！（還沒結束啦）':'喔耶——？',p.x,p.y-80,'#ffeaa7',18);
  const o=s==='strict'?(d<=1?3:2):offense(0,d,true);if(o>0)addAnnoy(o);}
-function punch(){breakCombo();C.annoy=0;C.punches++;const dmg=18+stars*6;hp-=dmg;stars=Math.min(5,stars+1);starT=0;C.punchA=.5;C.side=Math.random()<.5?-1:1;C.shake=.5;C.glare=0;SFX.punch();
- C.quote=pick(PQ[C.v.genre]||PQ.classical);const p=playerPos();cft('砰！ -'+dmg,p.x,p.y-60,'#ff4757',30);startCU('punch',{side:C.side,quote:C.quote,dmg});
- if(hp<=0){hp=0;setTimeout(()=>{if(mode==='concert'){endConcertCleanup();wasted('你在「'+C.v.name+'」被旁邊的樂迷揍到送醫。');}},2300);}}
+const LVQ=['不好意思，可以小聲一點嗎？','⋯⋯','需要的話，可以先到外面休息一下喔。','不好意思，請先跟我到外面。'];
+function punch(){breakCombo();C.annoy=0;C.punches++;const lv=Math.min(4,C.punches);stars=Math.min(5,stars+1);starT=0;C.punchA=.5;C.side=Math.random()<.5?-1:1;C.shake=.25;C.glare=0;SFX.shh();
+ const p=playerPos();
+ if(lv===1){C.quote=LVQ[0];cft('👆 鄰座輕拍你的肩膀',p.x,p.y-60,'#ffeaa7',20);startCU('tap',{side:C.side,quote:C.quote});}
+ else if(lv===2){C.quote=pick(PQ[C.v.genre]||PQ.classical);cft('👀 整排觀眾一起回頭⋯⋯',p.x,p.y-60,'#ffeaa7',20);startCU('row',{side:C.side,quote:C.quote});}
+ else if(lv===3){C.quote=LVQ[2];C.loz++;cft('🍬 帶位員遞來一顆喉糖',p.x,p.y-60,'#ffeaa7',20);startCU('usher',{side:C.side,msg:'「'+LVQ[2]+'」'});}
+ else{C.quote=LVQ[3];cft('🚪 被請出場⋯⋯',p.x,p.y-60,'#ff7675',22);startCU('out',{side:C.side,msg:'「'+LVQ[3]+'」'});
+  setTimeout(()=>{if(mode==='concert'&&C){const v=C.v;endConcertCleanup();kickedOut(v);}},2400);}}
+function kickedOut(v){mode='overlay';joy={on:false};TOT.wasted++;stopMusic();C&&(C._g=1);
+ GNOTE='沒關係，喝口水、休息一下，下次再來！🎺';setTimeout(guideReset,0);
+ showOv(`<div class="big">🚪😳</div><h2 style="text-align:center">被請出場了</h2><p style="text-align:center">在「${v.name}」被提醒太多次，帶位員客氣地請你先到外面休息。</p><p style="text-align:center;color:#aaa">這場沒聽完，不算集章。整理好喉嚨，下一場再來挑戰！</p><p style="text-align:center;color:#55efc4">💡 小提醒：強音時再咳、開演前先拆好喉糖、手帕摀住口鼻。</p><button id="ok">🙇 好，下次一定忍住</button>`);
+ $('ok').onclick=()=>{hideOv();P.x=v.d.x;P.y=v.d.y;P.vx=P.vy=0;cam.x=P.x;cam.y=P.y;guideReset();mode='map';say('沒關係，喝口水、休息一下，下次再來！🎺',4);};}
 
 /* ===== 處罰特寫鏡頭 ===== */
-function startCU(kind,o){if(!C||mode!=='concert')return;const cu=Object.assign({kind,t:0,dur:kind==='punch'?2.1:1.9,seed:(Math.random()*1e6)|0},o||{});if(C.cu){C.cuQ=C.cuQ||[];if(C.cuQ.length<2)C.cuQ.push(cu);return;}C.cu=cu;}
+function startCU(kind,o){if(!C||mode!=='concert')return;const cu=Object.assign({kind,t:0,dur:kind==='out'?2.4:kind==='punch'?2.1:2.0,seed:(Math.random()*1e6)|0},o||{});if(C.cu){C.cuQ=C.cuQ||[];if(C.cuQ.length<2)C.cuQ.push(cu);return;}C.cu=cu;}
 function cuExpr(x,y,s,ex,t){const hs=s*.62,hx=x-hs/2,hy=y-s*.42-hs/2,ey=hy+hs*.55,es=hs*.15;
  const sk='#efc6a0';ctx.fillStyle=sk;ctx.fillRect(x-hs*.36,ey-hs*.1,hs*.72,hs*.34);
  const brow=(ang)=>{ctx.fillStyle='#1e1a18';for(const sd of [-1,1]){ctx.save();ctx.translate(x+sd*hs*.2,ey-hs*.12);ctx.rotate(sd*ang);ctx.fillRect(-hs*.12,-hs*.03,hs*.24,hs*.07);ctx.restore();}};
@@ -974,7 +982,7 @@ function drawCU(c){const cu=c.cu,v=c.v,W=VW,H=VH,t=cu.t,p=Math.min(1,t/.18),out=
  ctx.translate(px,py);ctx.rotate(-.025);const sc=.82+.18*(1-Math.pow(1-p,3));ctx.scale(sc,sc);
  if(cu.kind==='punch'&&t>.28&&t<.6)ctx.translate((Math.random()-.5)*16,(Math.random()-.5)*16);
  ctx.fillStyle='#fff';ctx.fillRect(-pw/2-6,-ph/2-6,pw+12,ph+12);ctx.beginPath();ctx.rect(-pw/2,-ph/2,pw,ph);ctx.clip();
- const BG={punch:['#5a1414','#e74c3c'],staff:['#14223a','#74b9ff'],eyeroll:['#2d1d3f','#a29bfe']}[cu.kind]||['#222','#888'];
+ const BG={oops:['#2b2b2b','#fdcb6e'],tap:['#4a3410','#f6b93b'],row:['#3a2244','#e056fd'],usher:['#14223a','#74b9ff'],out:['#3a1818','#ff7675'],punch:['#5a1414','#e74c3c'],staff:['#14223a','#74b9ff'],eyeroll:['#2d1d3f','#a29bfe']}[cu.kind]||['#222','#888'];
  ctx.fillStyle=BG[0];ctx.fillRect(-pw/2,-ph/2,pw,ph);
  ctx.strokeStyle=BG[1];ctx.globalAlpha=(1-out)*.35;ctx.lineWidth=3;for(let i=0;i<36;i++){const a=i/36*Math.PI*2+t*.3,r1=pw*.22+(i%3)*12;ctx.beginPath();ctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);ctx.lineTo(Math.cos(a)*pw,Math.sin(a)*pw);ctx.stroke();}ctx.globalAlpha=1-out;
  const seat=v.hall==='blackbox'?'#c9a86a':v.id==='zsh'?'#8e1b1b':v.hall==='outdoor'?'#2d6a4f':'#7a1f2b';
@@ -982,10 +990,32 @@ function drawCU(c){const cu=c.cu,v=c.v,W=VW,H=VH,t=cu.t,p=Math.min(1,t/.18),out=
  // back row onlookers
  const others=[[-.38,-.2],[-.13,-.26],[.13,-.26],[.38,-.2]],ex2=['shock','angry','shh','shock','angry','shh'];
  others.forEach(([ox,oy],i)=>{const a=audLook(i+cu.seed%7,i*3+1,v);const x=ox*pw,y=oy*ph+ph*.05,sz=72*S;ctx.fillStyle=seat;ctx.fillRect(x-sz*.55,y+sz*.55,sz*1.1,sz*.6);
-  figure(x+(x<0?3:-3),y,sz,a.s,a.hc,0,0,{f:a.f,seed:cu.seed+i*13,c:0});cuExpr(x+(x<0?3:-3),y,sz,ex2[(i+cu.seed)%6],t);});
+  figure(x+(x<0?3:-3),y,sz,a.s,a.hc,0,0,{f:a.f,seed:cu.seed+i*13,c:0});cuExpr(x+(x<0?3:-3),y,sz,cu.kind==='row'?'shock':cu.kind==='oops'?['shock','stern','shh','shock'][i%4]:cu.kind==='tap'?['stern','shh'][i%2]:ex2[(i+cu.seed)%6],t);if(cu.kind==='row'&&t>.3){ctx.font=`900 ${sz*.32}px sans-serif`;ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('⋯⋯',x,y-sz*.85);}});
  ctx.fillStyle=seat;ctx.fillRect(-pw/2,ph*.32,pw,ph*.2);ctx.fillStyle='rgba(0,0,0,.25)';for(let i=0;i<6;i++)ctx.fillRect(-pw/2+i*pw/6,ph*.32,3,ph*.2);
  const side=cu.side||1,P0={x:pcx,y:pcy,s:150*S};
- if(cu.kind==='punch'){
+ if(cu.kind==='tap'){
+  const nx=side*pw*.33,ny=pcy+6*S,ns=140*S,a=audLook(5,cu.seed%9,v);figure(nx,ny,ns,a.s,a.hc,0,0,{f:a.f,seed:cu.seed+99,c:0});cuExpr(nx,ny,ns,'stern',t);
+  const f=Math.min(1,t/.35),tap=t>.35?Math.abs(Math.sin((t-.35)*12))*6*S:0;const sx=nx-side*ns*.3,ex=P0.x+side*P0.s*.33,ey=P0.y-P0.s*.02-tap;const hx=lerp(sx,ex,f),hy=lerp(ny-ns*.05,ey,f);
+  figure(P0.x,P0.y,P0.s,'#e84393','#16130f',0,0,{hair:'short'});cuExpr(P0.x,P0.y,P0.s,'sweat',t);
+  ctx.strokeStyle=a.s;ctx.lineWidth=ns*.14;ctx.beginPath();ctx.moveTo(sx,ny-ns*.05);ctx.lineTo(hx,hy);ctx.stroke();ctx.fillStyle='#efc6a0';ctx.fillRect(hx-ns*.09,hy-ns*.09,ns*.18,ns*.18);
+  if(t>.4){ctx.font=`800 ${22*S}px sans-serif`;ctx.fillStyle='#ffeaa7';ctx.textAlign='center';ctx.fillText('拍拍',ex+side*20*S,ey-30*S);}
+  if(t>.5)cuBubble(nx-side*10*S,ny-ns*.95,'「'+cu.quote+'」',pw,side);cuCap(ph,pw,'鄰座輕拍肩膀提醒你','#f6b93b');}
+ else if(cu.kind==='oops'){
+  figure(P0.x,P0.y,P0.s,'#e84393','#16130f',0,0,{hair:'short'});cuExpr(P0.x,P0.y,P0.s,'sweat',t);
+  const sh=Math.sin(t*28)*4*S*Math.max(0,1-t/1.2),pz=(56+10*Math.sin(t*9))*S;ctx.font=`${pz}px sans-serif`;ctx.textAlign='center';ctx.fillText(cu.prop,P0.x+side*P0.s*.62+sh,P0.y+P0.s*.1);
+  if(t>.3)cuBubble(0,P0.y-P0.s*1.05,cu.msg.replace(/^[^\u4e00-\u9fff「（]+/,'').slice(0,22),pw,side);cuCap(ph,pw,'全場都注意到了⋯⋯','#fdcb6e');}
+ else if(cu.kind==='row'){
+  figure(P0.x,P0.y,P0.s,'#e84393','#16130f',0,0,{hair:'short'});cuExpr(P0.x,P0.y,P0.s,'sweat',t);
+  if(t>.5)cuBubble(0,P0.y-P0.s*1.05,'（好尷尬⋯⋯）',pw,1);cuCap(ph,pw,'整排觀眾一起回頭看你⋯⋯','#e056fd');}
+ else if(cu.kind==='usher'||cu.kind==='out'){
+  const out=cu.kind==='out',walk=out?Math.min(1,Math.max(0,(t-.6)/1.2)):0;const ux=side*pw*.3-side*walk*pw*.2,uy=pcy-18*S,us=165*S;
+  figure(ux,uy,us,'#141414','#16130f',0,0,{hair:'short',c:1,seed:cu.seed});cuExpr(ux,uy,us,out?'stern':'shh',t);
+  ctx.fillStyle='#d4af37';ctx.fillRect(ux-us*.3,uy+us*.02,us*.22,us*.1);ctx.fillStyle='#fff';ctx.font=`700 ${11*S}px sans-serif`;ctx.textAlign='center';ctx.fillText('帶位員',ux-us*.19,uy+us*.1);
+  const px2=P0.x-side*walk*pw*.2;figure(px2,P0.y,P0.s,'#e84393','#16130f',0,0,{hair:'short'});cuExpr(px2,P0.y,P0.s,'sweat',t);
+  if(!out){const hx=ux-side*us*.5,hy=uy+us*.12;ctx.font=`${36*S}px sans-serif`;ctx.textAlign='center';ctx.fillText('🍬',hx,hy);ctx.fillText('🥤',hx-side*34*S,hy+6*S);}
+  else{ctx.font=`${44*S}px sans-serif`;ctx.textAlign='center';ctx.fillText('🚪',-side*pw*.36,pcy+10*S);}
+  if(t>.3)cuBubble(ux,uy-us*.9,cu.msg,pw,side);cuCap(ph,pw,out?'被帶位員請出場⋯⋯':'帶位員過來關心你','#74b9ff');}
+ else if(cu.kind==='punch'){
   const nx=side*pw*.33,ny=pcy+6*S,ns=140*S,a=audLook(5,cu.seed%9,v);
   figure(nx,ny,ns,a.s,a.hc,0,0,{f:a.f,seed:cu.seed+99,c:0});cuExpr(nx,ny,ns,'angry',t);
   const hit=Math.min(1,Math.max(0,(t-.12)/.18)),back=Math.max(0,(t-.7)/.5),f=hit*(1-Math.min(1,back));
@@ -996,7 +1026,7 @@ function drawCU(c){const cu=c.cu,v=c.v,W=VW,H=VH,t=cu.t,p=Math.min(1,t/.18),out=
   if(t>.28&&t<1.2){const bx=P0.x+side*P0.s*.25,by=P0.y-P0.s*.5,r=(40+40*Math.min(1,(t-.28)/.15))*S;ctx.fillStyle='#ffd32a';ctx.beginPath();for(let k=0;k<16;k++){const aa=k/16*Math.PI*2,rr2=k%2?r*.5:r;ctx.lineTo(bx+Math.cos(aa)*rr2,by+Math.sin(aa)*rr2);}ctx.closePath();ctx.fill();
    ctx.font=`900 ${44*S}px -apple-system,"PingFang TC",sans-serif`;ctx.textAlign='center';ctx.lineWidth=6;ctx.strokeStyle='#000';ctx.strokeText('砰！',bx,by+14*S);ctx.fillStyle='#ff4757';ctx.fillText('砰！',bx,by+14*S);}
   if(cu.quote&&t>.4)cuBubble(nx-side*20*S,ny-ns*.95,'「'+cu.quote+'」',pw,side);
-  cuCap(ph,pw,'被鄰座揍了！'+(cu.dmg?'  -'+cu.dmg+' HP':''),'#ff6b6b');}
+  cuCap(ph,pw,'被鄰座提醒了','#ff6b6b');}
  else if(cu.kind==='staff'){
   const pop=isPOP(v)||v.hall==='outdoor'||v.hall==='arena';const ux=side*pw*.3,uy=pcy-18*S,us=165*S;
   const vest=pop?'#f1c40f':'#141414';figure(ux,uy,us,vest,'#16130f',0,0,{hair:pop?'buzz':'short',c:pop?0:1,seed:cu.seed});
@@ -1032,7 +1062,7 @@ function drawCert(name,logo){const W=1080,H=1350,cv3=document.createElement('can
  g.fillStyle='#2b2420';g.font=F(500,38);g.fillText('茲證明',W/2,478);g.font=F(900,68);g.fillText(name,W/2,554);g.strokeStyle='#b8860b';g.lineWidth=2;g.beginPath();g.moveTo(W/2-260,574);g.lineTo(W/2+260,574);g.stroke();
  g.font=F(500,32);g.fillStyle='#4a3f36';g.fillText('在《酷酷嫂，忍住~!》中騎車跑遍台北音樂場館，',W/2,630);g.fillText('忍住喉嚨的癢，當一個尊重音樂與他人的好樂迷。',W/2,674);
  g.fillStyle='#8b1e1e';g.font=F(900,54);g.fillText('🏅 '+rk,W/2,748);
- const stats=[['🎫 集章',visited.size+' / '+VENUES.length],['⭐ 星星',st+' / '+VENUES.length*3],['🎩 禮儀分',String(TOT.mn||0)],['👊 挨揍',(TOT.punches||0)+' 拳']];
+ const stats=[['🎫 集章',visited.size+' / '+VENUES.length],['⭐ 星星',st+' / '+VENUES.length*3],['🎩 禮儀分',String(TOT.mn||0)],['🙋 被提醒',(TOT.punches||0)+' 次']];
  stats.forEach(([a,b],i)=>{const x=W/2+(i-1.5)*230;g.fillStyle='rgba(184,134,11,.12)';rr2(g,x-100,782,200,104,18);g.fill();g.fillStyle='#6b5a48';g.font=F(600,26);g.fillText(a,x,822);g.fillStyle='#2b2420';g.font=F(900,36);g.fillText(b,x,868);});
  VENUES.forEach((v,i)=>{const cx=W/2+((i%5)-2)*176+(i>=5?88:0),cy=972+Math.floor(i/5)*136,ok=visited.has(v.id);
   g.save();g.translate(cx,cy);g.rotate(ok?(i%2?.08:-.06):0);g.lineWidth=5;g.strokeStyle=ok?'rgba(192,40,40,.85)':'rgba(150,140,130,.5)';if(!ok)g.setLineDash([8,8]);g.beginPath();g.arc(0,0,52,0,7);g.stroke();g.setLineDash([]);
@@ -1137,7 +1167,8 @@ function backRow(msg,o){setTimeout(()=>{if(C&&mode==='concert'&&hp>0){const L=co
 function later(f,ms){setTimeout(()=>{if(C&&mode==='concert'&&hp>0)f();},ms);}
 const NPC_INC=['前排大叔的手機響了 📱','後排有人在打呼 😴','有人遲到摸黑找座位 ⏰','有人舉手機錄影被帶位員制止 📸','有人在開紅白塑膠袋 🛍️','有人中途起身去廁所 🚽'];
 function quiet(){return dynAt(C.t)<=1;}
-function evMsg(t,col){if(col==='#ff7675'&&/帶位員|工作人員|清潔人員|保全/.test(t)&&!/讓你/.test(t)){const who=t.includes('工作人員')?'工作人員':t.includes('清潔')?'清潔人員':t.includes('保全')?'保全':'帶位員';const lz=/雷射/.test(t);startCU('staff',{msg:(t.match(/「[^」]+」/)||[null])[0]||(lz?'「演出中請勿拍照錄影，謝謝。」':who==='清潔人員'?'「垃圾請自己帶走喔！」':'「請不要影響其他觀眾，謝謝。」'),laser:lz,who,side:Math.random()<.5?-1:1});}const p=playerPos();cft(t,p.x,p.y-90-(C.FT.length%3)*24,col||'#ffeaa7',16);}
+const OOPSP=[[/小蘋果|喂？|響了/,'📱'],[/塑膠袋|窸窸|九層塔/,'🛍️'],[/口水|肩膀/,'😴'],[/椅/,'🪑'],[/匡啷|滾到/,'🍾'],[/餘音/,'👏'],[/我愛你|嘶吼|哼/,'🎤'],[/閃！/,'📸'],[/推|撞|骨牌/,'💥'],[/螢光棒/,'🪄'],[/垃圾/,'🗑️'],[/墊子|鋪/,'🧺'],[/煙/,'🚬'],[/借過|踩/,'👣'],[/沙沙/,'📖'],[/樓上/,'🎫'],[/朋友|阿姨/,'🗣️'],[/憋不住/,'🚽'],[/醉/,'🍺'],[/買票/,'🗣️']];
+function evMsg(t,col){if(col==='#ff7675'&&!/帶位員|工作人員|清潔人員|保全/.test(t)&&mode==='concert'&&C){const pr=(OOPSP.find(x=>x[0].test(t))||[0,'😬'])[1];startCU('oops',{msg:t,prop:pr,side:Math.random()<.5?-1:1});}if(col==='#ff7675'&&/帶位員|工作人員|清潔人員|保全/.test(t)&&!/讓你/.test(t)){const who=t.includes('工作人員')?'工作人員':t.includes('清潔')?'清潔人員':t.includes('保全')?'保全':'帶位員';const lz=/雷射/.test(t);startCU('staff',{msg:(t.match(/「[^」]+」/)||[null])[0]||(lz?'「演出中請勿拍照錄影，謝謝。」':who==='清潔人員'?'「垃圾請自己帶走喔！」':'「請不要影響其他觀眾，謝謝。」'),laser:lz,who,side:Math.random()<.5?-1:1});}const p=playerPos();cft(t,p.x,p.y-90-(C.FT.length%3)*24,col||'#ffeaa7',16);}
 function hungry(){evMsg('肚子「咕嚕——」叫了一聲');if(dynAt(C.t)===0&&Math.random()<.5)addAnnoy(1);}
 function fallDown(){SFX.crash();C.shake=.5;C.away=2.5;C.awayTxt='（連人帶椅倒在地上 🪑💥）';evMsg('碰——！連人帶椅倒在後排的腳上','#ff7675');addAnnoy(quiet()?3:2);}
 function goToilet(forced){C.awayTxt='';const loud=dynAt(C.t)>=2;if(C.v.hall==='grand'){evMsg(forced?'憋不住了！！但⋯⋯排距好窄！':'起身⋯⋯欸，出不去！',forced?'#ff7675':'#ffeaa7');addAnnoy(forced?2:(loud?0:2));C.pendingEv={type:'squeeze',why:'toilet'};return;}if(forced)evMsg('憋不住了！！夾著腿衝出去','#ff7675');else evMsg(loud?'借過借過⋯（趁強音溜出去）':'「欸！你擋到我了！」',loud?'#55efc4':'#ff7675');C.away=4;addAnnoy(forced?3:(loud?1:3));}
@@ -1211,7 +1242,7 @@ function makeEvent(type){const v=C.v;
         ['💪 推回去','#c0392b',function(){C.shake=.4;evMsg('你推回去，人潮開始骨牌倒⋯','#ff7675');addAnnoy(3);return true;}]],
   timeout(){C.shake=.3;evMsg('你被推得撞上前面的人！','#ff7675');addAnnoy(2);}};
  if(type==='glowstick')return{title:'✨ 跳舞揮螢光棒！',desc:'音樂超嗨，手上的螢光棒要揮多大？',dur:4,
-  btns:[['💃 用力揮','#9b59b6',function(){C.prop={k:'stick',t:4};C.score+=20;evMsg('嗨翻！+20');if(Math.random()<.6)later(()=>{evMsg('啪！螢光棒打到隔壁的臉','#ff7675');addAnnoy(2);},700);return true;}],
+  btns:[['💃 用力揮','#9b59b6',function(){C.prop={k:'stick',t:4};C.score+=20;evMsg('嗨翻！+20');if(Math.random()<.6)later(()=>{evMsg('唰！螢光棒揮到隔壁的頭髮','#ff7675');addAnnoy(2);},700);return true;}],
         ['👋 小幅度揮','#27ae60',function(){C.prop={k:'stick',t:3,small:1};C.score+=12;evMsg('在自己的空間裡揮 ✓ +12','#55efc4');return true;}]],
   timeout(){}};
  if(type==='food')return{title:'🌭 肚子餓了',desc:'包包裡偷帶了大腸包小腸⋯⋯場館禁止飲食，而且味道超香。',dur:5,
@@ -1296,30 +1327,30 @@ function startEvent(type){if(!SEEN.has('ev')&&SET.tips&&type!=='mute'){SEEN.add(
  $('evBar').style.display=e.dur>0?'block':'none';$('evF').style.width='100%';$('ev').style.display='block';SFX.alert();}
 function endEvent(){if(C)C.ev=null;$('ev').style.display='none';}
 function setEvDesc(t){$('evD').textContent=t;}
-function finishConcert(){setTimeout(saveGame,50);const c=C;TUT.done=1;GNOTE=c.punches===0?'完美！一拳都沒挨，你是模範樂迷 🎺':c.punches>=3?'被揍了 '+c.punches+' 拳⋯⋯你是不是故意的啦！':'被揍了 '+c.punches+' 拳⋯下次挑 ff 段落再咳啦！';endConcertCleanup();mode='overlay';const first=!visited.has(c.v.id);visited.add(c.v.id);ATT[c.v.id]=(ATT[c.v.id]||0)+1;if(CUR_START!=null){gameMin=Math.max(gameMin,CUR_START+(c.v.id==='fuyu'?60:120));CUR_START=null;}if(c.v.id==='shuiyuan'){SHOW.ticket=null;}const sc=Math.round(c.score*(c.vip?1.5:1)*(c.dbl?2:1)*(c.feat?2:1));TOT.score+=sc;TOT.punches+=c.punches;TOT.mn=(TOT.mn||0)+c.mn;SFX.stamp();
- const rating=c.punches===0&&c.mn>=STAR3?'🏅 模範樂迷':c.punches===0&&c.cheers>=3?'🏅 模範樂迷':c.punches===0?'😌 平安過關':c.punches===1?'🤕 小有爭議':c.punches===2?'😵 被記住了':'💀 音樂廳公敵';
+function finishConcert(){setTimeout(saveGame,50);const c=C;TUT.done=1;GNOTE=c.punches===0?'完美！一次都沒被提醒，你是模範樂迷 🎺':c.punches>=3?'被提醒了 '+c.punches+' 次⋯⋯差點被請出場！':'被提醒了 '+c.punches+' 次⋯下次挑 ff 段落再咳啦！';endConcertCleanup();mode='overlay';const first=!visited.has(c.v.id);visited.add(c.v.id);ATT[c.v.id]=(ATT[c.v.id]||0)+1;if(CUR_START!=null){gameMin=Math.max(gameMin,CUR_START+(c.v.id==='fuyu'?60:120));CUR_START=null;}if(c.v.id==='shuiyuan'){SHOW.ticket=null;}const sc=Math.round(c.score*(c.vip?1.5:1)*(c.dbl?2:1)*(c.feat?2:1));TOT.score+=sc;TOT.punches+=c.punches;TOT.mn=(TOT.mn||0)+c.mn;SFX.stamp();
+ const rating=c.punches===0&&c.mn>=STAR3?'🏅 模範樂迷':c.punches===0&&c.cheers>=3?'🏅 模範樂迷':c.punches===0?'😌 平安過關':c.punches===1?'😅 被提醒一次':c.punches===2?'😳 全排都在看':'🫣 差點被請出場';
  const all=visited.size===VENUES.length;
  const sv=starsOf(c,true),ns=sv.filter(Boolean).length,prev=STARS[c.v.id]||0,newBest=ns>prev;if(newBest)STARS[c.v.id]=ns;if(STARLOCK&&STARLOCK.id===c.v.id&&STARS[c.v.id]>=3)STARLOCK=null;LOCKT=null;
  const ETQ={strict:['樂章之間不鼓掌：等指揮放下指揮棒、或演奏者起身鞠躬，才是鼓掌的時機。','最後一個音結束後，先讓餘音消失幾秒再鼓掌，這段安靜也是音樂的一部分。','喉糖、塑膠袋請在開演前先拆好，暗場裡的窸窣聲會傳得很遠。','遲到的觀眾要等樂章之間，由帶位員引導入座。','咳嗽時用手肘或手帕摀住口鼻，可以把聲音壓低很多。','演出中請勿拍照錄影，螢幕亮光會干擾演出者和其他觀眾。'],
  medium:['爵士樂的習慣是：樂手獨奏結束時可以鼓掌，給他一點掌聲。','戶外音樂節的垃圾請自己帶走，並做好分類。','野餐墊一人份就好，不要佔走道和別人的位子。'],
  loose:['錄影時把手機放低在胸前，別擋住後面觀眾的視線。','應援燈牌不要舉過頭，螢光棒小幅度揮動就好。','搖滾區不推擠，跌倒的人要先扶起來。']};
  const etq=(c.v.id==='fuyu'||c.v.hall==='msalon')&&c.v.strict==='strict'?pick(ETQ.strict.concat(['在沙龍音樂會，觀眾離演出者只有幾步，翻節目單、換姿勢都要特別輕。'])):pick(ETQ[c.v.strict]||ETQ.strict);
- const SL=['🎼 聽完整場','👊 一拳都沒挨','🎩 禮儀分 ≥ '+STAR3+'（這場 '+c.mn+'）'];
+ const SL=['🎼 聽完整場','🤫 一次都沒被提醒','🎩 禮儀分 ≥ '+STAR3+'（這場 '+c.mn+'）'];
  const starHTML=`<div style="text-align:center;font-size:40px;letter-spacing:6px;color:#ffd700;text-shadow:0 0 12px rgba(255,215,0,.6)">${sv.map(x=>x?'★':'<span style="color:#555">☆</span>').join('')}</div>
  <div style="font-size:13px;margin:4px 0 8px">${sv.map((x,i)=>`<div style="color:${x?'#55efc4':'#888'}">${x?'✅':'⬜'} ${SL[i]}</div>`).join('')}</div>${newBest&&prev?'<p style="text-align:center;color:#ffd700">🆕 刷新紀錄！'+starStr(prev)+' → '+starStr(ns)+'</p>':''}`;
  showOv(`<div class="big">${c.v.icon}</div><h2 style="text-align:center">演出結束！</h2><p style="text-align:center">${c.v.name}・${c.v.piece}</p>
- ${c.feat?'<p style="text-align:center;color:#ffd700;font-weight:700">⭐ 推薦場館：享受分＆禮儀分 ×2</p>':''}${starHTML}${c.v.id==='shuiyuan'?`<p style="text-align:center;font-size:13px;color:#fab1a0">⚔️ 巖流島的寂靜你撐住了嗎？${SHOW.late?'（這次遲到了，下次要準時喔）':''}<br><span style="color:#aaa">再看一次要重新買票。</span></p>`:''}<div style="background:rgba(85,239,196,.12);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px">💡 <b>禮儀小知識</b>：${etq}</div>${c.v.id==='fuyu'?`<p style="text-align:center;font-size:13px;color:#d1c4e9">🎹 在富瑜，你坐在離演出者只有幾步的地方，聽見了大音樂廳裡聽不到的細節。</p><p style="text-align:center;color:#ffd700">🎴 熟客集點卡 ${'●'.repeat(Math.min(3,ATT.fuyu))}${'○'.repeat(Math.max(0,3-ATT.fuyu))}${c.dbl?'　分數 ×2 已套用':ATT.fuyu===2?'　下次來分數 ×2！':''}</p>`:''}<div class="row"><span>🎧 享受分</span><b>${sc}</b></div><div class="row"><span>🎩 禮儀分</span><b>${c.mn}${c.maxCombo>=3?'　🔥最高連續 '+c.maxCombo:''}</b></div><div class="row"><span>👊 被揍次數</span><b>${c.punches}</b></div><div class="row"><span>🙌 歡呼</span><b>${c.cheers}</b></div><div class="row"><span>評價</span><b>${rating}</b></div>
+ ${c.feat?'<p style="text-align:center;color:#ffd700;font-weight:700">⭐ 推薦場館：享受分＆禮儀分 ×2</p>':''}${starHTML}${c.v.id==='shuiyuan'?`<p style="text-align:center;font-size:13px;color:#fab1a0">⚔️ 巖流島的寂靜你撐住了嗎？${SHOW.late?'（這次遲到了，下次要準時喔）':''}<br><span style="color:#aaa">再看一次要重新買票。</span></p>`:''}<div style="background:rgba(85,239,196,.12);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px">💡 <b>禮儀小知識</b>：${etq}</div>${c.v.id==='fuyu'?`<p style="text-align:center;font-size:13px;color:#d1c4e9">🎹 在富瑜，你坐在離演出者只有幾步的地方，聽見了大音樂廳裡聽不到的細節。</p><p style="text-align:center;color:#ffd700">🎴 熟客集點卡 ${'●'.repeat(Math.min(3,ATT.fuyu))}${'○'.repeat(Math.max(0,3-ATT.fuyu))}${c.dbl?'　分數 ×2 已套用':ATT.fuyu===2?'　下次來分數 ×2！':''}</p>`:''}<div class="row"><span>🎧 享受分</span><b>${sc}</b></div><div class="row"><span>🎩 禮儀分</span><b>${c.mn}${c.maxCombo>=3?'　🔥最高連續 '+c.maxCombo:''}</b></div><div class="row"><span>🙋 被提醒次數</span><b>${c.punches}</b></div><div class="row"><span>🙌 歡呼</span><b>${c.cheers}</b></div><div class="row"><span>評價</span><b>${rating}</b></div>
  ${first?`<p style="text-align:center;color:#ff6b81;font-size:18px;margin-top:12px">🎫 獲得印章：${c.v.name}（${visited.size}/${VENUES.length}）</p>`:''}
  ${c.v.id==='fuyu'?`<div style="background:rgba(253,203,110,.14);border:1px solid rgba(253,203,110,.4);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:14px">🍰 <b>會後糕點</b>：富瑜在門口準備了會後小點心，一人一份，邊吃邊聊剛剛的音樂。<button id="cakeB" style="background:#e17055;margin-top:6px">🍰 拿一個糕點</button><div id="cakeMsg" style="text-align:center;margin-top:4px"></div></div>`:''}
  <button id="ok">${all&&first?'🎉 看結局':'離場，騎車去下一站'}</button>`);
  if($('cakeB')){let ck=0;$('cakeB').onclick=()=>{ck++;if(ck===1){SFX.stamp();$('cakeMsg').innerHTML='😋 你拿了一塊糕點，好好吃！';$('cakeB').textContent='🍰 再拿一個';}else{SFX.shh();$('cakeMsg').innerHTML='<b style="color:#ffeaa7;font-size:16px">🙋 旁邊的觀眾：「喂！你已經拿過了」</b><br><span style="color:#aaa;font-size:12px">（只是提醒，不扣分）</span>';}};}
  $('ok').onclick=()=>{hideOv();if(DRINK.table){if(DRINK.table.v===c.v.id&&DRINK.table.water){INV.water+=DRINK.table.water;setTimeout(()=>say('從置放桌拿回你的礦泉水 💧'),400);}DRINK.table=null;}P.x=c.v.d.x;P.y=c.v.d.y;P.vx=P.vy=0;camYaw=Math.atan2(c.v.d.y-(c.v.r.y+c.v.r.h/2),c.v.d.x-(c.v.r.x+c.v.r.w/2));P.a=camYaw;cam.x=P.x;cam.y=P.y;if(all&&first)showWin();else mode='map';};}
 function wasted(msg){const HH=nearestHosp(P.x,P.y);GNOTE='我在'+HH.name+'門口等你好久了⋯輸完血就走吧，再試一次！🎺';C&&(C._g=1);setTimeout(guideReset,0);mode='overlay';joy={on:false};TOT.wasted++;stopMusic();
- showOv(`<div class="wasted">WASTED</div><h2 style="text-align:center">被揍爆了</h2><p style="text-align:center">${msg}</p><p style="text-align:center;color:#aaa">救護車把你送到最近的${HH.name}輸血站。這場不算集章喔。</p><p style="text-align:center;color:#fab1a0">🩴 你的鞋在救護車上弄丟了，醫院只借到一雙藍白拖⋯⋯穿拖鞋不能進音樂廳，記得先去便利商店買鞋！</p><button id="ok">🩸 輸完血，再戰一次</button>`);
+ showOv(`<div class="wasted">WASTED</div><h2 style="text-align:center">體力耗盡</h2><p style="text-align:center">${msg}</p><p style="text-align:center;color:#aaa">救護車把你送到最近的${HH.name}輸血站。這場不算集章喔。</p><p style="text-align:center;color:#fab1a0">🩴 你的鞋在救護車上弄丟了，醫院只借到一雙藍白拖⋯⋯穿拖鞋不能進音樂廳，記得先去便利商店買鞋！</p><button id="ok">🩸 輸完血，再戰一次</button>`);
  $('ok').onclick=()=>{hideOv();hp=100;stars=0;INV.slip=1;SHOET=null;P.x=HH.d.x;P.y=HH.d.y;P.vx=P.vy=0;cam.x=P.x;cam.y=P.y;camYaw=Math.atan2(HH.d.y-(HH.r.y+HH.r.h/2),HH.d.x-(HH.r.x+HH.r.w/2));P.a=camYaw;guideReset();mode='map';};}
 function showWin(){mode='overlay';showOv(`<div class="big">🎉🎫🎉</div><h1 style="text-align:center">台北音樂護照集滿！</h1><p style="text-align:center">你騎著機車跑遍台北 ${VENUES.length} 大音樂場館。</p>
- <div class="row"><span>⭐ 星星</span><b>${Object.values(STARS).reduce((a,b)=>a+b,0)} / ${VENUES.length*3}</b></div><div class="row"><span>總享受分</span><b>${TOT.score}</b></div><div class="row"><span>總共被揍</span><b>${TOT.punches} 拳</b></div><div class="row"><span>送醫次數</span><b>${TOT.wasted}</b></div>
- <p style="text-align:center;margin-top:10px">${TOT.punches===0?'一拳都沒挨，你是傳說中的「零咳嗽樂迷」。':TOT.punches<5?'偶爾挨揍，但音樂值得。':'台北各大場館的樂迷都認得你的臉了。'}</p><p style="text-align:center;color:#ffd700">還沒拿滿的場館，長鼻鼻會帶你回去挑戰三星！</p><button id="cert" style="background:#b8860b">🏅 領取好樂迷證書</button><button id="ok">繼續在台北閒逛</button>`);if($('cert'))$('cert').onclick=()=>showCert(showWin);
+ <div class="row"><span>⭐ 星星</span><b>${Object.values(STARS).reduce((a,b)=>a+b,0)} / ${VENUES.length*3}</b></div><div class="row"><span>總享受分</span><b>${TOT.score}</b></div><div class="row"><span>總共被提醒</span><b>${TOT.punches} 次</b></div><div class="row"><span>被請出場／送醫</span><b>${TOT.wasted}</b></div>
+ <p style="text-align:center;margin-top:10px">${TOT.punches===0?'一次都沒被提醒，你是傳說中的「零咳嗽樂迷」。':TOT.punches<5?'偶爾被提醒，但音樂值得。':'台北各大場館的帶位員都認得你的臉了。'}</p><p style="text-align:center;color:#ffd700">還沒拿滿的場館，長鼻鼻會帶你回去挑戰三星！</p><button id="cert" style="background:#b8860b">🏅 領取好樂迷證書</button><button id="ok">繼續在台北閒逛</button>`);if($('cert'))$('cert').onclick=()=>showCert(showWin);
  $('ok').onclick=()=>{hideOv();mode='map';};}
 
 const AUD_SHIRT={formal:['#1f2430','#2b2f3a','#3a2f2a','#f2f2ee','#5a1f2b','#23395d','#4a4a4a','#e8e1d2','#6b4f3a','#2f4f3f'],
@@ -1581,8 +1612,8 @@ function drawConcert(){const c=C,v=c.v,W=VW,H=VH,t=c.t,d=hp>0?dynAt(Math.min(t,v
   if(k==='smoke'){ctx.fillStyle='rgba(200,200,200,.35)';for(let i=0;i<6;i++){const ph=(t*.6+i/6)%1;ctx.beginPath();ctx.arc(px+hr+Math.sin(ph*6+i)*10,py-hr-ph*70,6+ph*14,0,7);ctx.fill();}ctx.font='18px sans-serif';ctx.fillText('🚬',px+hr*1.2,py);}
   if(k==='stick'){const a=Math.sin(t*12)*(c.prop.small?.35:1.3);ctx.strokeStyle='#7CFFB2';ctx.shadowColor='#7CFFB2';ctx.shadowBlur=12;ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(px+hr,py-hr*.2);ctx.lineTo(px+hr+Math.sin(a)*42,py-hr*.2-Math.cos(a)*42);ctx.stroke();ctx.shadowBlur=0;ctx.lineCap='butt';}}}
  // punch
- if(c.punchA>0){const pr=1-c.punchA/.5,f=pr<.5?pr*2:(1-pr)*2,nx=W/2+c.side*sp,fx=lerp(nx,px+c.side*hr*.6,f);ctx.font='36px sans-serif';ctx.textAlign='center';ctx.save();ctx.translate(fx,py-4);ctx.scale(-c.side,1);ctx.fillText('👊',0,0);ctx.restore();
-  if(f>.8){ctx.font='900 40px sans-serif';ctx.fillStyle='#ffeaa7';ctx.strokeStyle='#d63031';ctx.lineWidth=5;ctx.strokeText('砰！',px,py-hr-48);ctx.fillText('砰！',px,py-hr-48);}}
+ if(c.punchA>0){const pr=1-c.punchA/.5,f=pr<.5?pr*2:(1-pr)*2,nx=W/2+c.side*sp,fx=lerp(nx,px+c.side*hr*.6,f);ctx.font='36px sans-serif';ctx.textAlign='center';ctx.save();ctx.translate(fx,py-4);ctx.scale(-c.side,1);ctx.fillText('✋',0,0);ctx.restore();
+  if(f>.8){ctx.font='900 40px sans-serif';ctx.fillStyle='#ffeaa7';ctx.strokeStyle='#d63031';ctx.lineWidth=5;ctx.strokeText('砰！',px,py-hr-48);ctx.fillText('拍拍',px,py-hr-48);}}
  if((c.glare>0||c.punchA>0)&&c.quote){const side=c.punchA>0?c.side:c.glareSide;const bx=W/2+side*Math.min(sp*.6,W*.08);label('「'+c.quote+'」',bx,yB-hr*2.6-26,14,'rgba(255,255,255,.95)','#222');}
  // meter
  const my=H-128,mw=Math.min(W-40,420),mx=(W-mw)/2;ctx.fillStyle='#fff';ctx.font='700 13px -apple-system,"PingFang TC",sans-serif';ctx.textAlign='left';ctx.fillText('😷 喉嚨癢度',mx,my-12);
@@ -1610,10 +1641,10 @@ const RULES_HTML=`<h2 style="text-align:center">📖 完整規則</h2><p>你是�
  <p>${VENUES.map(v=>`<span class="tag">${v.icon} ${v.name}</span>`).join('')}</p>
  <p>🎺 <b>導遊長鼻鼻</b>會走在前面帶路，跟著牠（和小地圖上的黃線）走就對了！</p>
  <p>🛵 <b>操作</b>：左半邊拖曳搖桿騎車，右半邊滑動轉視角；電腦用 WASD 移動、←→ 轉視角，到門口按空白鍵進場。</p>
- <p>😷 <b>音樂會</b>：喉嚨會越來越癢。古典場在弱音時咳嗽，旁邊的人會直接揍你；每挨一拳惡名星等 +1，下一拳更痛。</p>
- <p>⚠️ <b>突發狀況</b>：國家音樂廳、中山堂、北藝中心、富瑜音樂沙龍會出現手機響、打瞌睡、遲到、偷拍、紅白塑膠袋、急尿、最後一音搶鼓掌等狀況，選錯就挨揍。</p>
+ <p>😷 <b>音樂會</b>：喉嚨會越來越癢。古典場在弱音時咳嗽，先被瞪、被噓；再犯會被鄰座拍肩提醒、整排回頭看你、帶位員過來關心，最後被請出場。每被提醒一次，惡名星等 +1。</p>
+ <p>⚠️ <b>突發狀況</b>：國家音樂廳、中山堂、北藝中心、富瑜音樂沙龍會出現手機響、打瞌睡、遲到、偷拍、紅白塑膠袋、急尿、最後一音搶鼓掌等狀況，選錯就會被提醒。</p>
  <p>⏰ <b>準時入場</b>：音樂會大多晚上 7:30 開演，週末另有下午 2:30 場（小巨蛋只有晚上場；富瑜音樂沙龍是週六上午 11:00）。開演前 30 分鐘開放入場，準時到有禮儀 +15、樂迷點數 +30；太早到可以在門口等。遊戲從週六上午 10:00 開始：建議先去 🎹 富瑜音樂沙龍（11:00），再看 ⚔️ 水源劇場《樂舞》（14:30），這兩場分數 ×2，一開始就能衝高分！</p><p>🛵 <b>沿路狀況</b>：紅燈、阿嬤過馬路、兩段式左轉、雷陣雨、街頭藝人、夜市雞排⋯⋯守規矩會加下一場的禮儀分，但也會花時間；亂來會被開罰單、惡名上升。</p><p>🩴 <b>入場規定</b>：穿藍白拖不能進任何音樂場館！忘了帶實體票？大場館可以出示手機 QR Code，但小型沙龍沒有掃描器只收紙本票；進場常遇到找不到座位的長輩，幫個忙吧。🥤 手上有任何飲料都會被擋下，要放在門外置放桌。</p><p>🌆 <b>城市生活</b>：黃色垃圾車放〈少女的祈禱〉、📻 機車電台、🏪 便利商店補貨、🧋 珍奶外送賺樂迷點數換好位、🚨 惡名高時樂迷糾察隊會追你、🎼 收集 12 片樂譜、🌧 午後雷陣雨、📸 地標打卡。</p>
- <p>🏥 血量歸零就 WASTED，救護車會把你送到最近醫院的輸血站。地圖上有 7 家醫院，經過時也能進去輸血回滿。小心路上的公車和小黃！</p>
+ <p>🏥 騎車出意外血量歸零就 WASTED，救護車會把你送到最近醫院的輸血站。地圖上有 7 家醫院，經過時也能進去輸血回滿。小心路上的公車和小黃！</p>
  `;
 function intro(){const sv=peekSave();
  showOv(`<div style="text-align:center"><canvas id="introAv" width="200" height="200" style="width:110px;height:110px"></canvas></div><h1 style="text-align:center;margin:4px 0">酷酷嫂，忍住~!</h1><p style="text-align:center;color:#aaa;margin:0 0 10px">音樂廳生存記</p>
@@ -1634,7 +1665,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;tNow+=dt;
  updateTimeWeather(dt);if(mode==='map')updateMap(dt);if(mode==='concert')updateConcert(dt);
  if(mode==='concert'&&C)drawConcert();else{if(C&&mode==='overlay'&&$('cb').style.display==='flex'){drawConcert();}else{draw3D();if(CAPTURE){if(CAPTURE.wait-->0){}else doCapture();}}}
  if(mode!=='concert'){drawMini();updateTalk(dt);hudT+=dt;if(hudT>.1){hudT=0;updHud();}}
- if(mode==='map'&&STARTED){saveT+=dt;if(saveT>8){saveT=0;saveGame();}if(stars>0)tip('stars','惡名星變多了！挨揍會更痛，還會被樂迷糾察隊追，騎遠一點就能甩掉。');if(hp<50)tip('hosp','血量變少了，經過醫院門口可以進去輸血回滿。');}else $('talk').style.display='none';
+ if(mode==='map'&&STARTED){saveT+=dt;if(saveT>8){saveT=0;saveGame();}if(stars>0)tip('stars','惡名星變多了！樂迷糾察隊會追上來唸你，騎遠一點就能甩掉。');if(hp<50)tip('hosp','血量變少了，經過醫院門口可以進去輸血回滿。');}else $('talk').style.display='none';
  requestAnimationFrame(loop);}
 cam.x=P.x;cam.y=P.y;applySet();drawNosey($('talkAv'));intro();loadModels();requestAnimationFrame(loop);
 </script>
